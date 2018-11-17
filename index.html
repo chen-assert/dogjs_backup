@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
+
+    <body onload="init()">
+        <img src="/static/pic/golden.jpg" id="img"></img>
+    </body>
+
+    <!-- Place your code in the script tag below. You can also use an external .js file -->
+    <script>
+      var model;
+      function init(){
+       model = tf.loadFrozenModel("/static/models/tensorflowjs_model.pb","/static/models/weights_manifest.json");
+        model.then(res => {
+            console.log("model loaded");
+            console.log(res);
+            model = res;
+            const img = document.getElementById('img');
+            tensor = tf.fromPixels(img);
+            /*
+            tensor = tf.fromPixels(img).toFloat();
+            const offset = tf.scalar(127.5);
+    // Normalize the image from [0, 255] to [-1, 1].
+            const normalized = tensor.sub(offset).div(offset);
+
+    // Reshape to a single-element batch so we can pass it to predict.
+            const batched = normalized.reshape([-1, 224, 224, 3]);
+            */
+            resized = tf.image.resizeBilinear(tensor, [224, 224]).toFloat();
+            expanded = tf.expandDims(resized,0);
+            //console.log(resized);
+            //const m = tf.moments(resized)
+            //     console.log(re)
+            //const scalar = tf.scalar(1.0);
+            //const offset = tf.scalar(255.0);
+            // const re = tf.batchNormalization(resized, m['mean'], m['variance'])
+            //console.log(expanded);
+            prediction = model.predict(expanded);
+            prediction.print(true);
+            prediction.argMax(1).print();
+            console.log(prediction);
+            })
+            console.log(model);
+      }
+    </script>
+  </head>
+
+  <body>
+  </body>
+</html>
