@@ -4,36 +4,37 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
 
     <body onload="init()">
-        <img src="/static/pic/golden.jpg" id="img"></img>
+        <img src="/static/pic/husky.jpg" id="img"></img>
     </body>
 
     <!-- Place your code in the script tag below. You can also use an external .js file -->
     <script>
       var model;
-
-      function img_to_tensor(img){
+        
+      //image to tensor
+      function itt(img){
             tensor = tf.fromPixels(img);
             resized = tf.image.resizeBilinear(tensor, [224, 224]).toFloat();
             expanded = tf.expandDims(resized,0);
             return expanded;
       }
 
-      function img_to_tensor_alt(img){
+      function itt_alt(img){
             tensor = tf.fromPixels(img).toFloat();
             const offset = tf.scalar(127.5);
-    // Normalize the image from [0, 255] to [-1, 1].
+            // Normalize the image from [0, 255] to [-1, 1].
             const normalized = tensor.sub(offset).div(offset);
-    // Reshape to a single-element batch so we can pass it to predict.
+            // Reshape to a single-element batch so we can pass it to predict.
             const batched = normalized.reshape([1, 224, 224, 3]);
             return batched;
       }
 
       function itt1(img){
-const tfImg = tf.fromPixels(img);
-const smalImg = tf.image.resizeBilinear(tfImg, [224, 224]);
-const resized = tf.cast(smalImg, 'float32');
-const t4d = tf.tensor4d(Array.from(resized.dataSync()),[1,224,224,3])
-return t4d;
+        const tfImg = tf.fromPixels(img);
+        const smalImg = tf.image.resizeBilinear(tfImg, [224, 224]);
+        const resized = tf.cast(smalImg, 'float32');
+        const t4d = tf.tensor4d(Array.from(resized.dataSync()),[1,224,224,3])
+        return t4d;
       }
 
       function init(){
