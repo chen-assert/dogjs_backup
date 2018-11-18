@@ -38,7 +38,7 @@
     </div>
 </nav>
 <main class="container">
-    <img width="500" height="300" src="/static/pic/golden.jpg" id="golden"></img>
+    <img width="500" height="300" src="./static/pic/golden.jpg" id="golden"></img>
 <div id="my_camera"></div>
 <p>结果：<span id="result">正在加载模型，请稍候...</span></p>
 <!-- A button for taking snaps -->
@@ -261,6 +261,7 @@
       }
     </script>
     <script>
+
       window.addEventListener('load', function() {
       document.querySelector('input[type="file"]').addEventListener('change', function() {
       if (this.files && this.files[0]) {
