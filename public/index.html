@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,9 +32,15 @@
 </head>
 
 <body onload="init()">
-<img width="500" height="300" src="./static/pic/golden.jpg" id="golden"></img>
+<nav>
+    <div class="nav-wrapper blue darken-4">
+        <a href="#" class="brand-logo center">狗分类器</a>
+    </div>
+</nav>
+<main class="container">
+    <img width="500" height="300" src="/static/pic/golden.jpg" id="golden"></img>
 <div id="my_camera"></div>
-<p>结果：<span id="result">wait</span></p><br>
+<p>结果：<span id="result">正在加载模型，请稍候...</span></p>
 <!-- A button for taking snaps -->
 <form>
     <input type=button value="validate" onClick="take_snapshot()">
@@ -240,6 +246,7 @@
     const init = () => {
         model = tf.loadFrozenModel("static/models/stanford/tensorflowjs_model.pb", "static/models/stanford/weights_manifest.json");
         model.then(res => {
+            $('#result').html("正在识别...");
             console.log("model loaded");
             console.log(res);
             model = res;
@@ -250,8 +257,22 @@
             pred('shiba');
             pred('poddle');
             */
-        })
+            })
+      }
+    </script>
+    <script>
+      window.addEventListener('load', function() {
+      document.querySelector('input[type="file"]').addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+          var img = document.querySelector('img');  // $('img')[0]
+          img.src = URL.createObjectURL(this.files[0]); // set src to file url
+          img.onload = imageIsLoaded; // optional onload event listener
+        }
+      });
+    });
+    function imageIsLoaded(e) {
+      init();
     }
 
-</script>
+    </script>
 </html>
