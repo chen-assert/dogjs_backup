@@ -1,15 +1,46 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dog Classifier</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="styles/materialize.css">
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+
+    <script type="text/javascript" src="scripts/jquery-3.3.1.js"></script>
+
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Template PWA">
+    <link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
+    <!-- Windows -->
+    <meta name="msapplication-TileImage" content="images/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#2F3BA2">
+
+    <link rel="icon"
+         type="image/png"
+         href="images/icons/icon-144x144.png">
     <!-- Load TensorFlow.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
+  </head>
 
     <body onload="init()">
-        <img src="/static/pic/golden.jpg" id="golden"></img>
-        <img src="/static/pic/husky.jpg" id="husky"></img>
-        <img src="/static/pic/peking.jpg" id="peking"></img>
-        <img src="/static/pic/shiba.jpg" id="shiba"></img>
-        <img src="/static/pic/poddle.jpg" id="poddle"></img>
+        <img width="500" height="300" src="/static/pic/golden.jpg" id="golden"></img>
+        <p>结果：<span id="result">wait</span></p>
+        <!--img src="/static/pic/husky.jpg" id="husky"></img-->
+        <!--img src="/static/pic/peking.jpg" id="peking"></img-->
+        <!--img src="/static/pic/shiba.jpg" id="shiba"></img-->
+        <!--img src="/static/pic/poddle.jpg" id="poddle"></img-->
     </body>
+    <script type="text/javascript" src="scripts/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
 
     <!-- Place your code in the script tag below. You can also use an external .js file -->
     <script>
@@ -24,21 +55,12 @@
       }
 
       function itt0(img){
-            //tensor = tf.fromPixels(img).toFloat();
-            //const offset = tf.scalar(127.5);
-            // Normalize the image from [0, 255] to [-1, 1].
-            //const normalized = tensor.sub(offset).div(offset);
-            // Reshape to a single-element batch so we can pass it to predict.
-            //const batched = normalized.reshape([1, 224, 224, 3]);
-
             const image = tf.fromPixels(img).toFloat()
             const resized = tf.image.resizeBilinear(image, [224, 224])
             const offset = tf.scalar(255 / 2)
             const normalized = resized.sub(offset).div(offset)
             const input = normalized.expandDims(0)
             return input;
-
-            return batched;
       }
 
       function itt1(img){
@@ -175,6 +197,7 @@
       index = prediction.argMax(1).dataSync()[0];
       console.log(index);
       console.log(labels[index]);
+      $('#result').html(labels[index]);
       }
 
       //async function init(){
@@ -185,15 +208,13 @@
             console.log(res);
             model = res;
             pred('golden');
+            /*
             pred('husky');
             pred('peking');
             pred('shiba');
             pred('poddle');
+            */
             })
       }
     </script>
-  </head>
-
-  <body>
-  </body>
 </html>
