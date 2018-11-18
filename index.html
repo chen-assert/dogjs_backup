@@ -4,7 +4,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
 
     <body onload="init()">
-        <img src="/static/pic/husky.jpg" id="img"></img>
+        <img src="/static/pic/peking.jpg" id="img"></img>
     </body>
 
     <!-- Place your code in the script tag below. You can also use an external .js file -->
@@ -19,13 +19,21 @@
             return expanded;
       }
 
-      function itt_alt(img){
-            tensor = tf.fromPixels(img).toFloat();
-            const offset = tf.scalar(127.5);
+      function itt0(img){
+            //tensor = tf.fromPixels(img).toFloat();
+            //const offset = tf.scalar(127.5);
             // Normalize the image from [0, 255] to [-1, 1].
-            const normalized = tensor.sub(offset).div(offset);
+            //const normalized = tensor.sub(offset).div(offset);
             // Reshape to a single-element batch so we can pass it to predict.
-            const batched = normalized.reshape([1, 224, 224, 3]);
+            //const batched = normalized.reshape([1, 224, 224, 3]);
+
+            const image = tf.fromPixels(img).toFloat()
+            const resized = tf.image.resizeBilinear(image, [224, 224])
+            const offset = tf.scalar(255 / 2)
+            const normalized = resized.sub(offset).div(offset)
+            const input = normalized.expandDims(0)
+            return input;
+
             return batched;
       }
 
@@ -37,9 +45,10 @@
         return t4d;
       }
 
-      function init(){
+      //async function init(){
+    const init = async() =>{
        model = tf.loadFrozenModel("/static/models/tensorflowjs_model.pb","/static/models/weights_manifest.json");
-        model.then(res => {
+        model.then (res => {
             console.log("model loaded");
             console.log(res);
             model = res;
@@ -52,7 +61,10 @@
             // const re = tf.batchNormalization(resized, m['mean'], m['variance'])
             //console.log(expanded);
             //prediction = model.predict(img_to_tensor_alt(img));
-            prediction = model.predict(itt1(img));
+            
+            //prediction = model.predict(itt0(img));
+
+            const prediction = model.predict({ Placeholder: itt0(img) });
             prediction.print(true);
             prediction.argMax(1).print();
             })
