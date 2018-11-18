@@ -32,12 +32,20 @@
   </head>
 
     <body onload="init()">
+    <nav>
+      <div class="nav-wrapper blue darken-4">
+        <a href="#" class="brand-logo center">狗分类器</a>
+      </div>
+    </nav>
+    <main class="container">
         <img width="500" height="300" src="/static/pic/golden.jpg" id="golden"></img>
         <p>结果：<span id="result">wait</span></p>
+        <input type='file' />
         <!--img src="/static/pic/husky.jpg" id="husky"></img-->
         <!--img src="/static/pic/peking.jpg" id="peking"></img-->
         <!--img src="/static/pic/shiba.jpg" id="shiba"></img-->
         <!--img src="/static/pic/poddle.jpg" id="poddle"></img-->
+        </main>
     </body>
     <script type="text/javascript" src="scripts/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
@@ -216,5 +224,20 @@
             */
             })
       }
+    </script>
+    <script>
+      window.addEventListener('load', function() {
+      document.querySelector('input[type="file"]').addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+          var img = document.querySelector('img');  // $('img')[0]
+          img.src = URL.createObjectURL(this.files[0]); // set src to file url
+          img.onload = imageIsLoaded; // optional onload event listener
+        }
+      });
+    });
+    function imageIsLoaded(e) {
+      init();
+    }
+    
     </script>
 </html>
