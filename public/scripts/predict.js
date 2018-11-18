@@ -119,6 +119,14 @@
         "n02115641 dingo",
         "n02115913 dhole",
         "n02116738 african hunting dog"];
+    
+    Array.prototype.max = function() {
+        return Math.max.apply(null, this);
+        };
+        
+    Array.prototype.min = function() {
+        return Math.min.apply(null, this);
+        };
 
     //image to tensor
     function itt0(img) {
@@ -133,10 +141,26 @@
     pred = (id) => {
         const img = document.getElementById(id);
         const prediction = model.predict({Placeholder: itt0(img)});
-        index = prediction.argMax(1).dataSync()[0];
-        console.log(index);
-        console.log(labels[index]);
-        $('#result').html(labels[index]);
+        var results = "";
+        var indexs = [];
+        var maxIndex = 0;
+        var max = 0;
+        prediction.dataSync().forEach(function(e,i){
+            if (e>=0.5){
+                results = results + labels[i] + "; ";
+                indexs.push({e,i});
+            }
+            if (e>max){
+                max = e;
+                maxIndex = i;
+            }
+        });
+        if (indexs.length == 0){
+                results = results + labels[maxIndex] + "; ";
+                indexs.push({max,maxIndex});
+        }
+        console.log(indexs);
+        $('#result').html(results);
     }
 
     //async function init(){

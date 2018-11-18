@@ -66,10 +66,26 @@
             img =canvas;
         });
         const prediction = model.predict({Placeholder: itt0(img)});
-        index = prediction.argMax(1).dataSync()[0];
-        console.log(index);
-        console.log(labels[index]);
-        $('#result').html(labels[index]);
+        var results = "";
+        var indexs = [];
+        var maxIndex = 0;
+        var max = 0;
+        prediction.dataSync().forEach(function(e,i){
+            if (e>=0.5){
+                results = results + labels[i] + "; ";
+                indexs.push({e,i});
+            }
+            if (e>max){
+                max = e;
+                maxIndex = i;
+            }
+        });
+        if (indexs.length == 0){
+                results = results + labels[maxIndex] + "; ";
+                indexs.push({max,maxIndex});
+        }
+        console.log(indexs);
+        $('#result').html(results);
     }
     function take_snapshot() {
         // take snapshot and get image data
