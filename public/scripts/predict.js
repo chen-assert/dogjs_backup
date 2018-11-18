@@ -140,6 +140,10 @@
 
     pred = (id) => {
         const img = document.getElementById(id);
+        doPred(img);
+    }
+
+    doPred = (img) =>{
         const prediction = model.predict({Placeholder: itt0(img)});
         var results = "";
         var indexs = [];
@@ -156,8 +160,11 @@
             }
         });
         if (indexs.length == 0){
-                results = results + labels[maxIndex] + "; ";
                 indexs.push({max,maxIndex});
+                if(max<0.15){
+                    results = results + "您输入的图片可能不包含狗。如果包含，它可能是： "
+                }
+                results = results + labels[maxIndex] + "; ";
         }
         console.log(indexs);
         $('#result').html(results);
