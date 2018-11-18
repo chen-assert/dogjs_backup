@@ -39,7 +39,7 @@
     </nav>
     <main class="container">
         <img width="500" height="300" src="/static/pic/golden.jpg" id="golden"></img>
-        <p>结果：<span id="result">wait</span></p>
+        <p>结果：<span id="result">正在加载模型，请稍候...</span></p>
         <input type='file' />
         <!--img src="/static/pic/husky.jpg" id="husky"></img-->
         <!--img src="/static/pic/peking.jpg" id="peking"></img-->
@@ -212,6 +212,7 @@
     const init = () =>{
        model = tf.loadFrozenModel("/static/models/stanford/tensorflowjs_model.pb","/static/models/stanford/weights_manifest.json");
         model.then (res => {
+            $('#result').html("正在识别...");
             console.log("model loaded");
             console.log(res);
             model = res;
