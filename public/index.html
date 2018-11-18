@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +14,7 @@
 
     <script type="text/javascript" src="scripts/jquery-3.3.1.js"></script>
 
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
 
     <!-- Add to home screen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,184 +26,220 @@
     <meta name="msapplication-TileColor" content="#2F3BA2">
 
     <link rel="icon"
-         type="image/png"
-         href="images/icons/icon-144x144.png">
+          type="image/png"
+          href="images/icons/icon-144x144.png">
     <!-- Load TensorFlow.js -->
-  </head>
+</head>
 
-    <body onload="init()">
-        <img width="500" height="300" src="/static/pic/golden.jpg" id="golden"></img>
-        <p>结果：<span id="result">wait</span></p>
-        <!--img src="/static/pic/husky.jpg" id="husky"></img-->
-        <!--img src="/static/pic/peking.jpg" id="peking"></img-->
-        <!--img src="/static/pic/shiba.jpg" id="shiba"></img-->
-        <!--img src="/static/pic/poddle.jpg" id="poddle"></img-->
-    </body>
-    <script type="text/javascript" src="scripts/app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"> </script>
+<body onload="init()">
+<img width="500" height="300" src="./static/pic/golden.jpg" id="golden"></img>
+<div id="my_camera"></div>
+<p>结果：<span id="result">wait</span></p><br>
+<!-- A button for taking snaps -->
+<form>
+    <input type=button value="validate" onClick="take_snapshot()">
+</form>
+<!--img src="/static/pic/husky.jpg" id="husky"></img-->
+<!--img src="/static/pic/peking.jpg" id="peking"></img-->
+<!--img src="/static/pic/shiba.jpg" id="shiba"></img-->
+<!--img src="/static/pic/poddle.jpg" id="poddle"></img-->
+</body>
+<script type="text/javascript" src="scripts/app.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.25/webcam.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
 
-    <!-- Place your code in the script tag below. You can also use an external .js file -->
-    <script>
-      var model;
-        
-      //image to tensor
-      function itt(img){
-            tensor = tf.fromPixels(img);
-            resized = tf.image.resizeBilinear(tensor, [224, 224]).toFloat();
-            expanded = tf.expandDims(resized,0);
-            return expanded;
-      }
+<!-- Place your code in the script tag below. You can also use an external .js file -->
+<script>
+    function take_snapshot() {
+        // take snapshot and get image data
+        Webcam.snap(function (data_uri, canvas, context) {
+            // copy image to my own canvas
 
-      function itt0(img){
-            const image = tf.fromPixels(img).toFloat()
-            const resized = tf.image.resizeBilinear(image, [224, 224])
-            const offset = tf.scalar(255 / 2)
-            const normalized = resized.sub(offset).div(offset)
-            const input = normalized.expandDims(0)
-            return input;
-      }
+            pred();
+        });
+    }
 
-      function itt1(img){
+    Webcam.set({
+        width: 640,
+        height: 480,
+        image_format: 'jpeg',
+        jpeg_quality: 90
+    });
+    Webcam.attach('#my_camera');
+
+
+    var model;
+    var labels = ["n02085620 chihuahua",
+        "n02085782 japanese spaniel",
+        "n02085936 maltese dog",
+        "n02086079 pekinese",
+        "n02086240 shih tzu",
+        "n02086646 blenheim spaniel",
+        "n02086910 papillon",
+        "n02087046 toy terrier",
+        "n02087394 rhodesian ridgeback",
+        "n02088094 afghan hound",
+        "n02088238 basset",
+        "n02088364 beagle",
+        "n02088466 bloodhound",
+        "n02088632 bluetick",
+        "n02089078 black and tan coonhound",
+        "n02089867 walker hound",
+        "n02089973 english foxhound",
+        "n02090379 redbone",
+        "n02090622 borzoi",
+        "n02090721 irish wolfhound",
+        "n02091032 italian greyhound",
+        "n02091134 whippet",
+        "n02091244 ibizan hound",
+        "n02091467 norwegian elkhound",
+        "n02091635 otterhound",
+        "n02091831 saluki",
+        "n02092002 scottish deerhound",
+        "n02092339 weimaraner",
+        "n02093256 staffordshire bullterrier",
+        "n02093428 american staffordshire terrier",
+        "n02093647 bedlington terrier",
+        "n02093754 border terrier",
+        "n02093859 kerry blue terrier",
+        "n02093991 irish terrier",
+        "n02094114 norfolk terrier",
+        "n02094258 norwich terrier",
+        "n02094433 yorkshire terrier",
+        "n02095314 wire haired fox terrier",
+        "n02095570 lakeland terrier",
+        "n02095889 sealyham terrier",
+        "n02096051 airedale",
+        "n02096177 cairn",
+        "n02096294 australian terrier",
+        "n02096437 dandie dinmont",
+        "n02096585 boston bull",
+        "n02097047 miniature schnauzer",
+        "n02097130 giant schnauzer",
+        "n02097209 standard schnauzer",
+        "n02097298 scotch terrier",
+        "n02097474 tibetan terrier",
+        "n02097658 silky terrier",
+        "n02098105 soft coated wheaten terrier",
+        "n02098286 west highland white terrier",
+        "n02098413 lhasa",
+        "n02099267 flat coated retriever",
+        "n02099429 curly coated retriever",
+        "n02099601 golden retriever",
+        "n02099712 labrador retriever",
+        "n02099849 chesapeake bay retriever",
+        "n02100236 german short haired pointer",
+        "n02100583 vizsla",
+        "n02100735 english setter",
+        "n02100877 irish setter",
+        "n02101006 gordon setter",
+        "n02101388 brittany spaniel",
+        "n02101556 clumber",
+        "n02102040 english springer",
+        "n02102177 welsh springer spaniel",
+        "n02102318 cocker spaniel",
+        "n02102480 sussex spaniel",
+        "n02102973 irish water spaniel",
+        "n02104029 kuvasz",
+        "n02104365 schipperke",
+        "n02105056 groenendael",
+        "n02105162 malinois",
+        "n02105251 briard",
+        "n02105412 kelpie",
+        "n02105505 komondor",
+        "n02105641 old english sheepdog",
+        "n02105855 shetland sheepdog",
+        "n02106030 collie",
+        "n02106166 border collie",
+        "n02106382 bouvier des flandres",
+        "n02106550 rottweiler",
+        "n02106662 german shepherd",
+        "n02107142 doberman",
+        "n02107312 miniature pinscher",
+        "n02107574 greater swiss mountain dog",
+        "n02107683 bernese mountain dog",
+        "n02107908 appenzeller",
+        "n02108000 entlebucher",
+        "n02108089 boxer",
+        "n02108422 bull mastiff",
+        "n02108551 tibetan mastiff",
+        "n02108915 french bulldog",
+        "n02109047 great dane",
+        "n02109525 saint bernard",
+        "n02109961 eskimo dog",
+        "n02110063 malamute",
+        "n02110185 siberian husky",
+        "n02110627 affenpinscher",
+        "n02110806 basenji",
+        "n02110958 pug",
+        "n02111129 leonberg",
+        "n02111277 newfoundland",
+        "n02111500 great pyrenees",
+        "n02111889 samoyed",
+        "n02112018 pomeranian",
+        "n02112137 chow",
+        "n02112350 keeshond",
+        "n02112706 brabancon griffon",
+        "n02113023 pembroke",
+        "n02113186 cardigan",
+        "n02113624 toy poodle",
+        "n02113712 miniature poodle",
+        "n02113799 standard poodle",
+        "n02113978 mexican hairless",
+        "n02115641 dingo",
+        "n02115913 dhole",
+        "n02116738 african hunting dog"];
+
+    //image to tensor
+    function itt(img) {
+        tensor = tf.fromPixels(img);
+        resized = tf.image.resizeBilinear(tensor, [224, 224]).toFloat();
+        expanded = tf.expandDims(resized, 0);
+        return expanded;
+    }
+
+    function itt0(img) {
+        const image = tf.fromPixels(img).toFloat()
+        const resized = tf.image.resizeBilinear(image, [224, 224])
+        const offset = tf.scalar(255 / 2)
+        const normalized = resized.sub(offset).div(offset)
+        const input = normalized.expandDims(0)
+        return input;
+    }
+
+    function itt1(img) {
         const tfImg = tf.fromPixels(img);
         const smalImg = tf.image.resizeBilinear(tfImg, [224, 224]);
         const resized = tf.cast(smalImg, 'float32');
-        const t4d = tf.tensor4d(Array.from(resized.dataSync()),[1,224,224,3])
+        const t4d = tf.tensor4d(Array.from(resized.dataSync()), [1, 224, 224, 3])
         return t4d;
-      }
+    }
 
-      pred = (id) =>{
-      var labels = new Array("n02085620 chihuahua",
-      "n02085782 japanese spaniel",
-      "n02085936 maltese dog",
-      "n02086079 pekinese",
-      "n02086240 shih tzu",
-      "n02086646 blenheim spaniel",
-      "n02086910 papillon",
-      "n02087046 toy terrier",
-      "n02087394 rhodesian ridgeback",
-      "n02088094 afghan hound",
-      "n02088238 basset",
-      "n02088364 beagle",
-      "n02088466 bloodhound",
-      "n02088632 bluetick",
-      "n02089078 black and tan coonhound",
-      "n02089867 walker hound",
-      "n02089973 english foxhound",
-      "n02090379 redbone",
-      "n02090622 borzoi",
-      "n02090721 irish wolfhound",
-      "n02091032 italian greyhound",
-      "n02091134 whippet",
-      "n02091244 ibizan hound",
-      "n02091467 norwegian elkhound",
-      "n02091635 otterhound",
-      "n02091831 saluki",
-      "n02092002 scottish deerhound",
-      "n02092339 weimaraner",
-      "n02093256 staffordshire bullterrier",
-      "n02093428 american staffordshire terrier",
-      "n02093647 bedlington terrier",
-      "n02093754 border terrier",
-      "n02093859 kerry blue terrier",
-      "n02093991 irish terrier",
-      "n02094114 norfolk terrier",
-      "n02094258 norwich terrier",
-      "n02094433 yorkshire terrier",
-      "n02095314 wire haired fox terrier",
-      "n02095570 lakeland terrier",
-      "n02095889 sealyham terrier",
-      "n02096051 airedale",
-      "n02096177 cairn",
-      "n02096294 australian terrier",
-      "n02096437 dandie dinmont",
-      "n02096585 boston bull",
-      "n02097047 miniature schnauzer",
-      "n02097130 giant schnauzer",
-      "n02097209 standard schnauzer",
-      "n02097298 scotch terrier",
-      "n02097474 tibetan terrier",
-      "n02097658 silky terrier",
-      "n02098105 soft coated wheaten terrier",
-      "n02098286 west highland white terrier",
-      "n02098413 lhasa",
-      "n02099267 flat coated retriever",
-      "n02099429 curly coated retriever",
-      "n02099601 golden retriever",
-      "n02099712 labrador retriever",
-      "n02099849 chesapeake bay retriever",
-      "n02100236 german short haired pointer",
-      "n02100583 vizsla",
-      "n02100735 english setter",
-      "n02100877 irish setter",
-      "n02101006 gordon setter",
-      "n02101388 brittany spaniel",
-      "n02101556 clumber",
-      "n02102040 english springer",
-      "n02102177 welsh springer spaniel",
-      "n02102318 cocker spaniel",
-      "n02102480 sussex spaniel",
-      "n02102973 irish water spaniel",
-      "n02104029 kuvasz",
-      "n02104365 schipperke",
-      "n02105056 groenendael",
-      "n02105162 malinois",
-      "n02105251 briard",
-      "n02105412 kelpie",
-      "n02105505 komondor",
-      "n02105641 old english sheepdog",
-      "n02105855 shetland sheepdog",
-      "n02106030 collie",
-      "n02106166 border collie",
-      "n02106382 bouvier des flandres",
-      "n02106550 rottweiler",
-      "n02106662 german shepherd",
-      "n02107142 doberman",
-      "n02107312 miniature pinscher",
-      "n02107574 greater swiss mountain dog",
-      "n02107683 bernese mountain dog",
-      "n02107908 appenzeller",
-      "n02108000 entlebucher",
-      "n02108089 boxer",
-      "n02108422 bull mastiff",
-      "n02108551 tibetan mastiff",
-      "n02108915 french bulldog",
-      "n02109047 great dane",
-      "n02109525 saint bernard",
-      "n02109961 eskimo dog",
-      "n02110063 malamute",
-      "n02110185 siberian husky",
-      "n02110627 affenpinscher",
-      "n02110806 basenji",
-      "n02110958 pug",
-      "n02111129 leonberg",
-      "n02111277 newfoundland",
-      "n02111500 great pyrenees",
-      "n02111889 samoyed",
-      "n02112018 pomeranian",
-      "n02112137 chow",
-      "n02112350 keeshond",
-      "n02112706 brabancon griffon",
-      "n02113023 pembroke",
-      "n02113186 cardigan",
-      "n02113624 toy poodle",
-      "n02113712 miniature poodle",
-      "n02113799 standard poodle",
-      "n02113978 mexican hairless",
-      "n02115641 dingo",
-      "n02115913 dhole",
-      "n02116738 african hunting dog");
-      const img = document.getElementById(id);
-      const prediction = model.predict({ Placeholder: itt0(img) });
-      index = prediction.argMax(1).dataSync()[0];
-      console.log(index);
-      console.log(labels[index]);
-      $('#result').html(labels[index]);
-      }
+    pred = (id) => {
+        const img = document.getElementById(id);
+        const prediction = model.predict({Placeholder: itt0(img)});
+        index = prediction.argMax(1).dataSync()[0];
+        console.log(index);
+        console.log(labels[index]);
+        $('#result').html(labels[index]);
+    }
+    pred = () => {
+        var img;
+        Webcam.snap(function (data_uri, canvas, context) {
+            // copy image to my own canvas
+            img =canvas;
+        });
+        const prediction = model.predict({Placeholder: itt0(img)});
+        index = prediction.argMax(1).dataSync()[0];
+        console.log(index);
+        console.log(labels[index]);
+        $('#result').html(labels[index]);
+    }
 
-      //async function init(){
-    const init = () =>{
-       model = tf.loadFrozenModel("/static/models/stanford/tensorflowjs_model.pb","/static/models/stanford/weights_manifest.json");
-        model.then (res => {
+    //async function init(){
+    const init = () => {
+        model = tf.loadFrozenModel("static/models/stanford/tensorflowjs_model.pb", "static/models/stanford/weights_manifest.json");
+        model.then(res => {
             console.log("model loaded");
             console.log(res);
             model = res;
@@ -214,7 +250,8 @@
             pred('shiba');
             pred('poddle');
             */
-            })
-      }
-    </script>
+        })
+    }
+
+</script>
 </html>
